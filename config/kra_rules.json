@@ -1,0 +1,55 @@
+{
+  "effective_year": 2026,
+  "import_duty": {
+    "rate": 0.35,
+    "description": "35% of customs value (CIF basis)"
+  },
+  "excise_duty": {
+    "brackets": [
+      {"min_cc": 0,    "max_cc": 1000, "rate": 0.10, "label": "Up to 1000cc"},
+      {"min_cc": 1001, "max_cc": 2000, "rate": 0.20, "label": "1001cc to 2000cc"},
+      {"min_cc": 2001, "max_cc": 3000, "rate": 0.25, "label": "2001cc to 3000cc"},
+      {"min_cc": 3001, "max_cc": 9999, "rate": 0.35, "label": "Above 3000cc"}
+    ]
+  },
+  "vat": {
+    "rate": 0.16,
+    "description": "16% on (customs value + import duty + excise duty)"
+  },
+  "idf": {
+    "rate": 0.035,
+    "description": "Import Declaration Fee — 3.5% of customs value (CIF), min KES 5000"
+  },
+  "rdl": {
+    "rate": 0.02,
+    "description": "Railway Development Levy — 2% of customs value (CIF)"
+  },
+  "crsp_depreciation": {
+    "description": "KRA Current Retail Selling Price depreciation schedule",
+    "schedule": [
+      {"years_old": 1, "depreciation": 0.10},
+      {"years_old": 2, "depreciation": 0.20},
+      {"years_old": 3, "depreciation": 0.30},
+      {"years_old": 4, "depreciation": 0.40},
+      {"years_old": 5, "depreciation": 0.50},
+      {"years_old": 6, "depreciation": 0.55},
+      {"years_old": 7, "depreciation": 0.60},
+      {"years_old": 8, "depreciation": 0.65},
+      {"years_old_plus": 8, "depreciation": 0.70}
+    ]
+  },
+  "other_charges": {
+    "shipping_usd": {"min": 1200, "max": 1800, "default": 1500, "description": "Japan to Mombasa (USD)"},
+    "port_charges_kes": {"value": 35000, "description": "Port handling and storage"},
+    "clearing_fees_kes": {"value": 45000, "description": "Clearing agent fees"},
+    "ntsa_registration_kes": {"value": 15000, "description": "NTSA registration and number plates"},
+    "inspection_fees_kes": {"value": 10000, "description": "Pre-shipment (JAAI/JEVIC) and KEBS inspection"}
+  },
+  "kenyan_import_rules": {
+    "max_age_years": 8,
+    "right_hand_drive_required": true,
+    "minimum_year": 2016,
+    "co2_limit_gkm": null,
+    "notes": "As of 2026, Kenya permits vehicles up to 8 years old. RHD mandatory."
+  }
+}

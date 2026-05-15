@@ -1,0 +1,6 @@
+FROM apache/airflow:2.8.4-python3.11
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+USER airflow
+COPY requirements_pipeline.txt /tmp/requirements_pipeline.txt
+RUN pip install --no-cache-dir -r /tmp/requirements_pipeline.txt

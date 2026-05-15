@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+*.env.local
+
+# Data & Models
+data/models/
+data/evaluation/
+data/seed/
+
+# Project summary (personal reference only)
+projectsummary.md
+
+# Airflow
+logs/
+airflow_logs/
+
+# Playwright
+error_*.png
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Assets placeholder (actual screenshots are committed)
+assets/.gitkeep
