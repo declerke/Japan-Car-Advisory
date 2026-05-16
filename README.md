@@ -67,7 +67,7 @@ Kenya is one of the largest markets for Japanese used cars globally, yet buyers 
 
 **Overview — 541 listings, 25 makes, 260 models across 2 platforms; avg price $10,742; last run 2026-05-15**
 
-![Home Dashboard](assets/dashboard_home.png)
+![Home Dashboard](assets/dashboard.png)
 
 **Price Distribution by Make — box plots across Honda, Toyota, Suzuki, Nissan, Mazda, Daihatsu, Isuzu, Mercedes-Benz**
 
@@ -101,7 +101,7 @@ Kenya is one of the largest markets for Japanese used cars globally, yet buyers 
 
 ![Model Performance](assets/model%20performance%20summary.png)
 
-**Airflow DAG — japan_cars_pipeline run 2026-05-15 06:00 UTC; log_pipeline_summary task output**
+**Airflow DAG — japan_cars_pipeline 5/5 tasks SUCCESS (scrape_beforward → scrape_sbt → validate_data → train_price_model → log_pipeline_summary)**
 
 ![Airflow DAG](assets/airflow_dag.png)
 
@@ -165,7 +165,7 @@ japan-car-advisory/
 ├── config/
 │   └── kra_rules.json             # KRA 2026 tax rates (JSON)
 ├── dags/
-│   └── japan_cars_pipeline.py    # Airflow DAG — 4 tasks, daily 06:00
+│   └── japan_cars_pipeline.py    # Airflow DAG — 5 tasks, daily 06:00
 ├── database/
 │   └── schema.sql                 # 6-table schema + 8 indexes
 ├── etl/
