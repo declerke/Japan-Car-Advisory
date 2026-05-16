@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import os
 from calculator.import_calculator import ImportCostCalculator
+from utils.db_utils import get_distinct_values, get_models_for_make
 
 USD_TO_KES = float(os.getenv("USD_TO_KES", 130.0))
 
@@ -22,13 +23,23 @@ def render():
 
     calculator = ImportCostCalculator(usd_to_kes=USD_TO_KES)
 
+    # Make and model are outside the form so the model list updates dynamically
+    # when the make changes — st.form freezes widget state until submit.
+    st.subheader("Vehicle Details")
+    col_make, col_model = st.columns(2)
+    with col_make:
+        makes = get_distinct_values("make")
+        default_make_idx = makes.index("Toyota") if "Toyota" in makes else 0
+        make = st.selectbox("Make", makes, index=default_make_idx)
+    with col_model:
+        models = get_models_for_make(make)
+        default_model_idx = models.index("Corolla") if "Corolla" in models else 0
+        model = st.selectbox("Model", models, index=default_model_idx)
+
     with st.form("cost_calculator"):
-        st.subheader("Vehicle Details")
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            make = st.text_input("Make", value="Toyota")
-            model = st.text_input("Model", value="Corolla")
             year = st.number_input("Year", min_value=2018, max_value=2026, value=2021, step=1)
 
         with col2:
