@@ -51,11 +51,12 @@ Kenya is one of the largest markets for Japanese used cars globally, yet buyers 
 
 - **541 listings** from two live sources: BE FORWARD (413 listings, 15 pages/day) and SBT Japan (128 listings, 5 pages/day)
 - **25 distinct makes** — Toyota, Honda, Nissan, Mitsubishi, Daihatsu, Suzuki, Isuzu, Mercedes-Benz, Mazda, and 16 others
-- **260+ distinct models** catalogued across the 2015–2026 production window
-- **Price range:** $990 – $129,800
-- **ML model competition:** XGBoost wins with MAE = $3,706, R² = 0.722 (trained on 232 rows, tested on 59)
-  - LightGBM: MAE = $4,452, R² = 0.581
-  - RandomForest: MAE = $4,409, R² = 0.594
+- **260 distinct models** catalogued across the 2015–2026 production window
+- **Price range:** $990 – $129,800 (avg $10,742)
+- **ML model competition:** LightGBM wins with MAE = $2,222, RMSE = $4,665, R² = 0.7978, MAPE = 22.23%
+  - XGBoost: MAE = $2,433, RMSE = $4,603, R² = 0.8032, MAPE = 24.27%
+  - RandomForest: MAE = $2,365, RMSE = $4,750, R² = 0.7904, MAPE = 26.84%
+- **Sample KRA calculation:** Toyota Corolla 2021 ($8,000 FOB + $1,500 shipping) → KES 2,493,737 landed (KES 1,153,737 in taxes and duties)
 - **Airflow DAG:** 5/5 tasks SUCCESS — two parallel scrape tasks + validate + train + log
 - **Test suite:** 40/40 passing — 12 calculator, 19 cleaner, 9 feature-engineering
 - **KRA tax stack** modelled exactly: 35% import duty → excise (10–35% by engine bracket) → 16% VAT → 3.5% IDF → 2% RDL → fixed port/clearing/NTSA/inspection charges
@@ -64,23 +65,43 @@ Kenya is one of the largest markets for Japanese used cars globally, yet buyers 
 
 ## 📸 Dashboard
 
-**Overview — 541 listings, 25 makes, 260+ models (BE FORWARD + SBT Japan)**
+**Overview — 541 listings, 25 makes, 260 models across 2 platforms; avg price $10,742; last run 2026-05-15**
 
 ![Home Dashboard](assets/dashboard_home.png)
 
-**Browse & Filter — searchable listings table with make/year/price/fuel filters**
+**Price Distribution by Make — box plots across Honda, Toyota, Suzuki, Nissan, Mazda, Daihatsu, Isuzu, Mercedes-Benz**
+
+![Price Distribution by Make](assets/price%20distribution%20by%20make.png)
+
+**Browse & Filter — 200 results shown; filterable by make, year, price, fuel, transmission with dark-mode table**
 
 ![Search Listings](assets/dashboard_search.png)
 
-**KRA Import Calculator — full duty breakdown with CRSP depreciation toggle**
+**Import Calculator — Toyota Corolla 2021 ($8,000 FOB, 1,800cc, $1,500 shipping at KES 130/USD)**
 
 ![Import Calculator](assets/dashboard_calculator.png)
 
-**ML Price Predictions — form-based prediction with ±15% confidence interval**
+**Full Cost Breakdown — KES 2,493,737 landed; KES 1,153,737 in taxes (Import Duty, Excise 20%, VAT, IDF, RDL, port, clearing, NTSA, inspection)**
 
-![Price Predictions](assets/dashboard_predictions.png)
+![Full Cost Breakdown](assets/Full%20Cost%20Breakdown%20%E2%80%94%20Toyota%20Corolla%20(2021).png)
 
-**Airflow DAG — 4/4 tasks SUCCESS (scrape → validate → train → log)**
+**Import vs Local Comparison — Audi A6 (2019–2023): avg import cost KES 6,828,762 vs local market**
+
+![Import vs Local](assets/Import%20vs%20Local%20Comparison%20page%20overview.png)
+
+**ML Predictions form — Audi 1 Series 2020, 50,000 km, 1,300cc, Automatic, Petrol, BE FORWARD**
+
+![ML Predictions](assets/dashboard_predictions.png)
+
+**Prediction Results — LightGBM predicts $14,444 (KES 1,877,712) with ±15% confidence interval ($12,277–$16,611)**
+
+![Prediction Results](assets/prediction%20results.png)
+
+**Model Performance Summary — LightGBM selected: MAE $2,222, R² 0.7978, MAPE 22.23%**
+
+![Model Performance](assets/model%20performance%20summary.png)
+
+**Airflow DAG — japan_cars_pipeline run 2026-05-15 06:00 UTC; log_pipeline_summary task output**
 
 ![Airflow DAG](assets/airflow_dag.png)
 
@@ -111,7 +132,7 @@ Kenya is one of the largest markets for Japanese used cars globally, yet buyers 
 
 - **Decimal coercion for PostgreSQL NUMERIC columns:** psycopg2 returns `NUMERIC` columns as Python `decimal.Decimal` objects, not `float`. This causes silent failures in scikit-learn and XGBoost. A post-load coercion loop (`pd.to_numeric(..., errors="coerce")`) fixes it without modifying the schema.
 
-- **`libgomp1` in Dockerfile.airflow:** LightGBM requires OpenMP (`libgomp.so.1`) at runtime. The base `apache/airflow:2.8.4-python3.11` image does not include it. A single `apt-get install libgomp1` as `root` — before switching to `USER airflow` for pip — resolves the `OSError` without increasing image size significantly.
+- **`libgomp1` in both Dockerfiles:** LightGBM requires OpenMP (`libgomp.so.1`) at runtime. Neither the `apache/airflow:2.8.4-python3.11` base image nor `python:3.11-slim` include it. A single `apt-get install --no-install-recommends libgomp1` added to both `Dockerfile.airflow` and `Dockerfile.streamlit` resolves the `OSError: libgomp.so.1: cannot open shared object file` without meaningfully increasing image size.
 
 - **`app/views/` not `app/pages/`:** Streamlit auto-discovers a `pages/` directory adjacent to the main script and builds a multi-page navigation from it, overriding the custom sidebar. Renaming to `views/` prevents the collision. Combined with explicit `sys.path` injection, it also resolves the `from app.views import ...` circular import that caused double `set_page_config()` calls.
 
@@ -172,6 +193,11 @@ japan-car-advisory/
 │   ├── dashboard_search.png
 │   ├── dashboard_calculator.png
 │   ├── dashboard_predictions.png
+│   ├── prediction results.png
+│   ├── model performance summary.png
+│   ├── price distribution by make.png
+│   ├── Full Cost Breakdown — Toyota Corolla (2021).png
+│   ├── Import vs Local Comparison page overview.png
 │   └── airflow_dag.png
 ├── data/                          # models/ + evaluation/ — gitignored
 ├── .env.example
@@ -261,7 +287,7 @@ CRSP depreciation (optional): KRA uses a Current Retail Selling Price schedule �
 - **Multi-source web scraping** — two independent scrapers (BE FORWARD: dual `div`+`tr` selector; SBT Japan: `.card-product` with CSS hyphen-class workaround); price extraction from DOM elements; rate-limiting, retry logic, and `fake-useragent` rotation in shared base class
 - **ETL pipeline design** — modular extract → clean → load architecture; idempotent UPSERT; configurable validation thresholds; derived column generation
 - **Relational data modelling** — normalised six-table PostgreSQL schema; UUID primary keys; composite UNIQUE constraint; partial and expression indexes
-- **Apache Airflow orchestration** — TaskFlow API (`@dag`, `@task`); XCom-based task chaining; scheduled daily cron; retry policy; scrape-log audit table
+- **Apache Airflow orchestration** — TaskFlow API (`@dag`, `@task`); XCom-based task chaining; 5-task DAG (scrape_beforward → scrape_sbt → validate → train → log); scheduled daily cron; retry policy; scrape-log audit table
 - **Gradient boosting ML** — three-model competition (XGBoost, LightGBM, RandomForest); log-transform target; label encoding with unknown-category handling; MAE-based champion selection; joblib serialisation
 - **Tax domain modelling** — KRA duty cascade encoded in JSON config; CRSP depreciation schedule; vehicle age compliance checks; KES landed-cost computation
 - **Streamlit multi-page app** — dynamic sidebar navigation; cached DB queries; interactive filter widgets; plotly charts; form-based ML prediction
